@@ -1,0 +1,19 @@
+/* Preloader.css */
+
+/* Body background color white */
+/* Style spécifique au corps de la page Preloader */
+.preloader-page {
+    background-color: #E3E3E3;
+    height: 100vh; /* Occupe 100% de la hauteur de la fenêtre */
+    width: 100vw; /* Occupe 100% de la largeur de la fenêtre */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  /* Page container styling */
+  .preloader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* 100% of the viewport height */
+  }
