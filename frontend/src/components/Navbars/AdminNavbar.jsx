@@ -1,15 +1,15 @@
-import React from "react";
 import classNames from "classnames";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Link } from 'react-router-dom';
 
 import {
-  Button,
   Collapse,
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
   UncontrolledDropdown,
   Input,
-  InputGroup,
   NavbarBrand,
   Navbar,
   NavLink,
@@ -22,22 +22,47 @@ import {
 
 function AdminNavbar(props) {
   const [collapseOpen, setcollapseOpen] = React.useState(false);
+  const [receivedReclamations, setReceivedReclamations] = useState([]);
   const [modalSearch, setmodalSearch] = React.useState(false);
   const [color, setcolor] = React.useState("navbar-transparent");
-
-  // Gestion de la déconnexion de l'utilisateur
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.clear(); 
-    window.location.href = "/login"; 
-  };
-
-  React.useEffect(() => {
+    const user_id = localStorage.getItem('user_id'); // Récupérer l'`user_id` stocké localement
+    axios.post(`http://127.0.0.1:8000/api/deconnexion/${user_id}`)
+      .then(response => {
+        console.log(response.data.message);
+        // Supprimer les données de l'utilisateur du stockage local
+        localStorage.removeItem('user_id');
+        // Rediriger vers la page de connexion
+        window.location.href = '/login';
+      })
+      .catch(error => {
+        console.error('Error logging out:', error);
+      });
+};
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+            try {
+              const user_id = localStorage.getItem('user_id');
+              if (!user_id) {
+                // Gérer le cas où l'ID utilisateur n'est pas défini dans localStorage
+                console.error('ID utilisateur non défini dans localStorage');
+                return;
+              }
+              const response = await axios.get(`http://127.0.0.1:8000/api/user/${user_id}`);
+              setLoading(false);
+              setUser(response.data);
+            } catch (error) {
+              console.error('Erreur lors de la récupération du profil utilisateur:', error);
+            }
     window.addEventListener("resize", updateColor);
     return function cleanup() {
       window.removeEventListener("resize", updateColor);
-    };
-  });
+    };};
+     fetchUserProfile();
+  }, []);
 
   // Mise à jour de la couleur du navbar
   const updateColor = () => {
@@ -62,11 +87,12 @@ function AdminNavbar(props) {
   const toggleModalSearch = () => {
     setmodalSearch(!modalSearch);
   };
-
-  // Rediriger l'utilisateur vers la page de profil
-  const handleProfileClick = () => {
-    window.location.href = "/fournisseur/profile";
-  };
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/api/ReceivedReclamations')
+      .then(response => response.json())
+      .then(data => setReceivedReclamations(data.reclamations))
+      .catch(error => console.error('Error fetching reclamations:', error));
+  }, []);
 
   return (
     <>
@@ -95,12 +121,6 @@ function AdminNavbar(props) {
           </NavbarToggler>
           <Collapse navbar isOpen={collapseOpen}>
             <Nav className="ml-auto" navbar>
-              <InputGroup className="search-bar">
-                <Button color="link" onClick={toggleModalSearch}>
-                  <i className="tim-icons icon-zoom-split" />
-                  <span className="d-lg-none d-md-block">Search</span>
-                </Button>
-              </InputGroup>
               <UncontrolledDropdown nav>
                 <DropdownToggle
                   caret
@@ -113,35 +133,52 @@ function AdminNavbar(props) {
                   <p className="d-lg-none">Notifications</p>
                 </DropdownToggle>
                 <DropdownMenu className="dropdown-navbar" right tag="ul">
-                  <NavLink tag="li">
-                    <DropdownItem className="nav-item">
-                      Mike John responded to your email
-                    </DropdownItem>
-                  </NavLink>
-                  <NavLink tag="li">
-                    <DropdownItem className="nav-item">
-                      You have 5 more tasks
-                    </DropdownItem>
-                  </NavLink>
-                </DropdownMenu>
+                {receivedReclamations.map(reclamation => (
+         <li key={reclamation.id}>
+            <DropdownItem>
+              Vous avez une nouvelle réclamation avec n°{reclamation.id}
+            </DropdownItem>
+          </li>
+        ))}
+      </DropdownMenu>
               </UncontrolledDropdown>
               <UncontrolledDropdown nav>
                 <DropdownToggle
-                  caret
                   color="default"
                   nav
                   onClick={(e) => e.preventDefault()}
                 >
-                  <div className="photo">
-                    <img alt="..." src={require("assets/img/anime3.png")} />
+                  <div className="d-flex align-items-center">
+                    <div className="photo mr-2">
+                      <img alt="..." src={require("assets/img/anime3.png")} />
+                    </div>
+                    <div>
+         {loading ? (
+           <p>Chargement...</p>
+         ) : user ? (
+           <React.Fragment>
+             <div style={{ display: "flex", alignItems: "center",marginBottom: "-10px" }}>
+  <p style={{ marginRight: "3px" }}>{user.name}</p>
+  <p>{user.lastname}</p>
+</div>
+
+             {/* Ajoutez d'autres champs de profil ici */}
+           </React.Fragment>
+         ) : (
+           <p>Aucun utilisateur trouvé</p>
+         )}
+       </div>
                   </div>
-                  <b className="caret d-none d-lg-block d-xl-block" />
-                  <p className="d-lg-none">Log out</p>
                 </DropdownToggle>
+
                 <DropdownMenu className="dropdown-navbar" right tag="ul">
-                  <NavLink tag="li">
-                    <DropdownItem className="nav-item" onClick={handleProfileClick}>Profile</DropdownItem>
-                  </NavLink>
+                <NavLink tag="li">
+      <DropdownItem className="nav-item">
+        <Link to="/Admin/profile" style={{ color: 'grey' }}>
+          Profile
+        </Link>
+      </DropdownItem>
+    </NavLink>
                   <NavLink tag="li">
                     <DropdownItem className="nav-item" onClick={handleLogout}>
                       Log out

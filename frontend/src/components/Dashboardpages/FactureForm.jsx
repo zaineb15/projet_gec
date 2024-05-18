@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { Card, CardHeader, FormGroup, Input, CustomInput } from "reactstrap";
 import NotificationAlert from "react-notification-alert";
 import axios from "axios";
-import { MultiSelect } from "react-multi-select-component";
+import Select from "react-select";
 
 const CreateFacture = () => {
     const [numFacture, setNumFacture] = useState("");
@@ -56,6 +56,7 @@ const CreateFacture = () => {
     formData.append("montant", montant);
     formData.append("devise", devise); // Passer la devise dans FormData
     formData.append("file", file);
+    formData.append("num_po", numPO);
 
     // Extraire les valeurs sélectionnées des objets
     const selectedObjetValues = objet.map(option => option.value);
@@ -66,8 +67,9 @@ const CreateFacture = () => {
     formData.append("pieces_jointes", selectedPiecesJointesValues.join(","));
 
     try {
+        const user_id = localStorage.getItem('user_id'); 
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/facture",
+        `http://127.0.0.1:8000/api/facture?user_id=${user_id}`,
         formData,
         {
           headers: {
@@ -79,7 +81,7 @@ const CreateFacture = () => {
         throw new Error(response.data.message);
       }
       showNotification("success", "Facture créée avec succès!");
-      window.location.href = "/fournisseur/listefacture";
+      window.location.href = "/Fournisseur/listefacture";
     } catch (error) {
       console.error("Erreur lors de la création de la facture:", error.message);
       showNotification("danger", "Erreur lors de la création de la facture.");
@@ -110,18 +112,18 @@ const CreateFacture = () => {
         <div className="row">
           <div className="col-md-12">
             <div className="card card-primary">
-              <div className="card-header"></div>
               <form onSubmit={handleSubmit}>
                 <div className="card-body">
                   <div className="row">
                     <div className="col-md-6">
                       <FormGroup>
                         <label htmlFor="objet">Objet</label>
-                        <MultiSelect
+                        <Select
                           options={optionsObjet}
                           value={objet}
                           onChange={setObjet}
-                          labelledBy="Sélectionnez des valeurs"
+                          isMulti
+                          placeholder="Sélectionnez des objets"
                         />
                       </FormGroup>
                     </div>
@@ -130,11 +132,12 @@ const CreateFacture = () => {
                         <label htmlFor="pieces_jointes">
                           Pièces jointes
                         </label>
-                        <MultiSelect
+                        <Select
                           options={optionsAttachments}
                           value={pieces_jointes}
                           onChange={setPiecesJointes}
-                          labelledBy="Sélectionnez des pièces jointes"
+                          isMulti
+                          placeholder="Sélectionnez des pièces jointes"
                         />
                       </FormGroup>
                     </div>
@@ -195,7 +198,7 @@ const CreateFacture = () => {
                       <FormGroup>
                         <label htmlFor="num_facture">Numéro PO</label>
                         <Input
-                          type="select"
+                          type="text"
                           name="num_po"
                           value={numPO}
                           onChange={(e) => setNumPO(e.target.value)}
@@ -208,7 +211,7 @@ const CreateFacture = () => {
                       <CustomInput
                         icon="tim-icons icon-cloud-upload-94"
                         type="file"
-                        id="fileInput"
+                        id="fileInput"        
                         name="file"
                         accept=".pdf, .png, .jpg"
                         onChange={handleFileChange}

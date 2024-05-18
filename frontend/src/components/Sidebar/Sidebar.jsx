@@ -4,7 +4,8 @@ import { PropTypes } from "prop-types";
 import PerfectScrollbar from "perfect-scrollbar";
 import { Nav } from "reactstrap";
 import { BackgroundColorContext } from "contexts/BackgroundColorContext";
-import geclogo from '../../assets/images/1.png';
+// import geclogo from '../../assets/images/1.png';
+import geclogo from '../../assets/images/tt.png';
 
 var ps;
 
@@ -38,9 +39,10 @@ function Sidebar(props) {
       // Cas où le logo est un lien externe
       logoImg = (
         <div className="logo" style={{ textAlign: 'center' }}>
-          <div className="logo-img" style={{ display: 'inline-block', marginRight: '10px' }}>
+          {/* <div className="logo-img" style={{ display: 'inline-block', marginRight: '10px' }}>
             <img src={geclogo} alt="logo" style={{ width: '60px', height: '60px', borderRadius: '50%' }} />
-          </div>
+          </div> */}
+                    <img src={geclogo} alt="logo" style={{ width: '110px', height: '60px', borderRadius: '50%' }} />
           <div style={{ display: 'inline-block' }}> <br/>
             <h6 style={{ color: 'white' }}>Gestion Eléctronique des Courriers</h6>
           </div>
@@ -77,7 +79,9 @@ function Sidebar(props) {
               {/* Mapping sur les routes pour afficher les liens de navigation */}
               {routes.map((prop, key) => {
                 // Exclusion de la route 'Facture' de la barre latérale
-                if (prop.redirect || prop.path === '/facture' || prop.path === '/profile' || prop.path === '/reclamation' || prop.path === '/updatefacture/:id'|| prop.path === '/consulterfacture/:id' || prop.path === '/updatereclamation/:id'|| prop.path === '/consulterreclamation/:id') return null;
+                if (prop.redirect || prop.path === '/facture' || prop.path === '/profile' || prop.path === '/reclamation' || prop.path === '/updatefacture/:id'|| prop.path === '/consulterfacture/:id' || prop.path === '/updatereclamation/:id'|| prop.path === '/consulterreclamation/:id'
+                || prop.path === '/facturereceptionné'|| prop.path === '/facturerejeté'|| prop.path === '/facturefiscaliste'|| prop.path === '/facturecomptable'|| prop.path === '/facturefinale'
+                ) return null;
                 return (
                   <li
                     className={

@@ -5,7 +5,7 @@ import Index from './index'; // Changement de 'index' à 'Index' pour respecter 
 function App() {
   return (
     <Router>
-      <Index /> {/* Changement de 'index' à 'Index' pour respecter la casse */}
+      <Index />
     </Router>
   );
 }

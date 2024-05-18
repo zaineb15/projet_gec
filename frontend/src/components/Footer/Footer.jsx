@@ -4,7 +4,7 @@ import { Container } from "reactstrap";
 function Footer() {
   return (
     // Début du composant Footer
-    <footer className="footer" style={{ position: "fixed", bottom: 0, width: "100%", padding: "20px 0" }}>
+    <footer className="footer" style={{ bottom: 0, width: "100%"}}>
       {/* Conteneur fluide pour le contenu du footer */}
       <Container fluid>
         {/* Contenu du footer aligné au centre */}

@@ -13,18 +13,30 @@ const ListeFacture = ({ history }) => {
     const [selectedFilter, setSelectedFilter] = useState("num_fact");
     const facturesPerPage = 6; // Nombre de factures par page
 
-    useEffect(() => {
-        const fetchFactures = async () => {
-            try {
-                const response = await axios.get('http://127.0.0.1:8000/api/factures');
-                setFactures(response.data);
-                setLoading(false);
-            } catch (error) {
-                console.error('Erreur lors de la récupération des factures:', error);
+useEffect(() => {
+    const fetchFactures = async () => {
+        try {
+            const user_id = localStorage.getItem('user_id'); 
+            if (user_id) {
+                console.log(user_id);
+                const response = await axios.get(`http://127.0.0.1:8000/api/facture?user_id=${user_id}`);
+                if (response.data && response.data.factures) {
+                    setFactures(response.data.factures);
+                    setLoading(false);
+                } else {
+                    console.error('Données de facture non trouvées dans la réponse');
+                }
+            } else {
+                console.error('user_id non trouvé dans le local storage');
             }
-        };
-        fetchFactures();
-    }, []);
+        } catch (error) {
+            console.error('Erreur lors de la récupération des factures:', error);
+        }
+    };
+    fetchFactures();
+}, []);
+
+    
 
     const handleDelete = async (id) => {
         try {
@@ -51,8 +63,6 @@ const ListeFacture = ({ history }) => {
         )
         : factures.slice(indexOfFirstFacture, indexOfLastFacture);
 
-    const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
     const goToPreviousPage = () => {
         if (currentPage > 1) {
             setCurrentPage(currentPage - 1);
@@ -66,15 +76,16 @@ const ListeFacture = ({ history }) => {
     };
 
     const exportToExcel = () => {
-        const jsonData = currentFactures.map(facture => ({
+        const jsonData = factures.map(facture => ({
             id: facture.id,
-            num_fact: facture.num_fact,
-            date_fact: facture.date_fact,
-            montant: facture.montant,
-            devise: facture.devise,
-            status: facture.status
+            "Numéro de facture": facture.num_fact,
+            "Date de facture": facture.date_fact,
+            Montant: facture.montant,
+            Devise: facture.devise,
+            motifs: facture.motifs,
+            validation: facture.validation,
         }));
-
+    
         const ws = XLSX.utils.json_to_sheet(jsonData);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Factures");
@@ -87,6 +98,7 @@ const ListeFacture = ({ history }) => {
         a.click();
         URL.revokeObjectURL(url);
     };
+    
 
     return (
         <div className="content">
@@ -101,13 +113,11 @@ const ListeFacture = ({ history }) => {
                             <Input type="text" placeholder="Rechercher..." value={searchQuery} onChange={handleSearchInputChange} />
                             <select className="form-select" value={selectedFilter} onChange={handleFilterSelectChange}>
                                 <option value="num_fact">Numéro de facture</option>
-                                <option value="date_fact">Date de facture</option>
-                                <option value="montant">Montant</option>
-                                <option value="devise">Devise</option>
-                                <option value="status">Statut</option>
                             </select>
                         </InputGroup>
                         <Button onClick={exportToExcel} className="custom-export-button btn btn-primary btn-sm ml-2">Exporter vers Excel</Button>
+                        <p> </p>
+                        <p>Vous puvez localiser vos factures et suivre les differentes etapes de validation</p>
                         {loading ? ( // Afficher "Chargement" lorsque loading est vrai
                             <div className="text-center">
                                 <img src={Loading} alt="Logo" style={{ width: '50px', height: '50px' }} />
@@ -117,24 +127,24 @@ const ListeFacture = ({ history }) => {
                             <Table className="tablesorter" >
                                 <thead className="text-primary">
                                     <tr>
-                                        <th>id</th>
                                         <th>numéro facture</th>
-                                        <th>date facture</th>
-                                        <th>montant</th>
-                                        <th>devise</th>
-                                        <th>status</th>
+                                        <th>Motif de rejet</th>
+                                        <th>validation BOF</th>
+                                        <th>validation comptable</th>
+                                        <th>validation fiscaliste</th>
+                                        <th>validation trésorerie</th>
                                         <th className="text-center">action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {currentFactures.map((facture) => (
                                         <tr key={facture.id}>
-                                            <td>{facture.id}</td>
                                             <td>{facture.num_fact}</td>
-                                            <td>{facture.date_fact}</td>
-                                            <td>{facture.montant}</td>
-                                            <td>{facture.devise}</td>
-                                            <td>{facture.status}</td>
+                                            <td style={{ backgroundColor: facture.motifs === 'aucune' ? '' : '#ff5a5a' }}>{facture.motifs}</td>
+                                            <td style={{ backgroundColor: facture.validation === 'oui' ? '#ffde5c' : 'inherit' }}>{facture.validation === 'oui' ? 'Chez la comptabilité' : facture.validation}</td>
+                                            <td style={{ backgroundColor: facture.valide_compt === 'oui' ? '#fe996a' : 'inherit' }}>{facture.valide_compt ==='oui' ? 'Chez la fiscalité' : facture.valide_compt}</td>
+                                            <td style={{ backgroundColor: facture.valide_fisc === 'oui' ? '#7f92fd' : 'inherit' }}>{facture.valide_fisc ==='oui' ? 'Chez la trésorerie' : facture.valide_fisc}</td>
+                                            <td style={{ backgroundColor: facture.valide_tres === 'oui' ? '#38cf4f' : 'inherit' }}>{facture.valide_tres ==='oui' ? 'facture validée' : facture.valide_tres}</td>
                                             <td className="project-actions text-center">
                                                 <Link className="btn btn-primary btn-sm btn-icon-split" to={`/fournisseur/Consulterfacture/${facture.id}`}>
                                                     <span className="icon">
