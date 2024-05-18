@@ -17,7 +17,7 @@ const UpdateFacture = () => {
         const fetchFacture = async () => {
             try {
                 const response = await axios.get(`http://127.0.0.1:8000/api/facture/${id}`);
-                const { num_fact, date_fact, montant, devise,file } = response.data;
+                const { num_fact, date_fact, montant,file } = response.data;
                 setFile(file);
                 setNumFacture(num_fact);
                 setDateFacture(date_fact);
@@ -34,7 +34,7 @@ const UpdateFacture = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        if (!numFacture.trim() || !dateFacture.trim() || !montant.trim()) {
+        if (!numFacture.trim() || !dateFacture.trim() || !montant.trim() ) {
             showNotification('danger', 'Veuillez remplir tous les champs du formulaire.');
             return;
         }
@@ -88,7 +88,6 @@ const UpdateFacture = () => {
                             <div className="row">
                                 <div className="col-md-6">
                                     <div className="card card-primary">
-                                        <div className="card-header"></div>
                                         <form onSubmit={handleSubmit} enctype="multipart/form-data">
                                             <div className="card-body">
                                                 <FormGroup>

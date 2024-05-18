@@ -2794,7 +2794,6 @@ fieldset:disabled a.btn {
 .show > .btn-light.dropdown-toggle:focus {
   box-shadow: 0 0 0 0 rgba(185, 192, 199, 0.5);
 }
-
 .btn-dark {
   color: #ffffff;
   background-color: #212529;

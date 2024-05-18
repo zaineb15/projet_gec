@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Reclamation extends Model
 {
     use HasFactory;
-
-    protected $fillable = ['objet', 'message'];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    protected $fillable = ['objet', 'message','status','user_id'];
 }

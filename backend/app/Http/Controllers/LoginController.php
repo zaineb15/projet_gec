@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Passport\HasApiTokens;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller
 {
@@ -14,26 +16,46 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+            // Stocker l'ID de l'utilisateur dans la session
+            Session::put('user_id', $user->id);
+            Session::put('user_profil', $user->profil);
+
+            // Générer un jeton d'accès
             $token = $user->createToken('AppName')->accessToken;
-
-            // Redirection en fonction du profil
-            $redirect = '/';
-
-            switch ($user->profil) {
-                case 'fournisseur':
-                    $redirect = '/fournisseur/dashboard';
-                    break;
-                case 'comptable':
-                    $redirect = '/comptable/dashboard';
-                    break;
-                case 'agent_bof':
-                    $redirect = '/agent_bof/dashboard';
-                    break;
-            }
-
-            return response()->json(['success' => true, 'message' => 'Login successful', 'access_token' => $token, 'redirect' => $redirect]);
+            
         }
-
-        return response()->json(['success' => false, 'message' => 'Invalid credentials'], 401);
-    }
+        $profil = $user->profil;
+    
+        // Redirection en fonction du profil
+        $redirect = '/';
+    
+        switch ($profil) {
+            case 'fournisseur':
+                $redirect = '/Fournisseur/dashboard';
+                break;
+            case 'admin':
+                $redirect = '/Admin/dashboard';
+                break;
+            case 'agent AP':
+            case 'fiscaliste':
+            case 'agent tresorerie':
+            case 'agent BOF':
+                        $redirect = '/Agent/dashboard';
+                break;
+        }
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'User information updated successfully',
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'lastname' => $user->lastname,
+            'phone' => $user->phone,
+            'nationnalite' => $user->nationnalite,
+            'adresse' => $user->adresse,
+            'profil' => $profil,
+            'redirect' => $redirect,
+            'user_profil' => $profil
+        ]);    }
+        
 }

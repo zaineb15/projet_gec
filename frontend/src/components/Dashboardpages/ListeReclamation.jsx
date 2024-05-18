@@ -13,7 +13,8 @@ const ListeReclamation = () => {
   useEffect(() => {
     const fetchReclamations = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/reclamations');
+        const user_id = localStorage.getItem('user_id'); 
+        const response = await axios.get(`http://127.0.0.1:8000/api/reclamations?user_id=${user_id}`);
         setReclamations(response.data);
         setLoading(false); // Mettre à jour le state de chargement une fois les données récupérées
       } catch (error) {
@@ -55,7 +56,7 @@ const ListeReclamation = () => {
       <Col md="16">
         <Card>
           <CardHeader className="d-flex justify-content-between align-items-center">
-            <h4 className="title">Liste des réclamations</h4>
+            <h4 className="title">Ajouter une réclamation</h4>
             <Link to="/fournisseur/reclamation" className="btn btn-success btn-sm ml-2">Ajouter</Link>
           </CardHeader>
           <CardBody>

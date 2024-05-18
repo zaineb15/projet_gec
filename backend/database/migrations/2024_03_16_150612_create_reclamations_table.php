@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('reclamations', function (Blueprint $table) {
             $table->id();
             $table->string('objet'); // Champ pour l'objet de la réclamation
+            $table->string('status'); // Champ pour l'objet de la réclamation
             $table->text('message'); // Champ pour le message de la réclamation
+            $table->string('user_id');
             $table->timestamps();
         });
     }

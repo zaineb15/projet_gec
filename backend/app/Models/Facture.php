@@ -8,7 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Facture extends Model
 {
     use HasFactory;
-
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
     protected $fillable = [
         'num_fact',
         'date_fact',
@@ -17,5 +20,12 @@ class Facture extends Model
         'file',
         'objet', // Ajouter le champ "Objet"
         'pieces_jointes', // Ajouter le champ "Pièces jointes"
+        'status',
+        'motifs',
+        'validation',
+        'user_id',
+        'valide_compt',
+        'valide_tres',
+        'valide_fisc',
     ];
 }

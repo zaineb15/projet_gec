@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -15,33 +15,39 @@ import {
 import axios from "axios";
 
 function UserProfile() {
-  const navigate = useNavigate(); // Utilisation de useNavigate pour gérer la navigation
   const [formData, setFormData] = useState({
     name: "",
-    username: "",
+    lastname: "",
     email: "",
-    password: "",
-    confirm_password: "",
     phone: "",
+    nationnalite: "",
+    adresse: "",
+    password: "",
   });
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user_id = localStorage.getItem('user_id');
+        const response = await axios.get(`http://127.0.0.1:8000/api/user/${user_id}`);
+        const userData = response.data;
+        setFormData(userData);
+      } catch (error) {
+        console.error("Erreur lors de la récupération du profil utilisateur:", error);
+      }
+    };
+    fetchUser();
+  }, []);
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData({
       ...formData,
       [name]: value,
     });
-  };
-
+  }
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const { password, confirm_password } = formData;
-
-    // Vérifier si les mots de passe correspondent
-    if (password !== confirm_password) {
-      alert("Les mots de passe ne correspondent pas");
-      return;
-    }
+    const { password } = formData;
 
     // Vérifier si le mot de passe contient au moins 8 caractères alphanumériques
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
@@ -51,18 +57,14 @@ function UserProfile() {
       );
       return;
     }
-
     try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/register",
-        formData
-      );
+      const user_id = localStorage.getItem('user_id');
+      const response = await axios.post(`http://127.0.0.1:8000/api/user/${user_id}`, formData
+    );
       if (!response.data.success) {
         throw new Error(response.data.message);
       }
-
-      // Rediriger vers la page de connexion après une inscription réussie
-      navigate("/");
+      alert("Profil mis à jour avec succès !");
     } catch (error) {
       console.error("Erreur:", error.message);
     }
@@ -73,13 +75,13 @@ function UserProfile() {
       {/* Contenu de la page de profil utilisateur */}
       <div className="content">
         {/* Section de mise à jour du profil */}
-        <Col md="8">
+        <Col md="12">
           <Card>
             <CardHeader>
               <h5 className="title">Edit Profile</h5>
             </CardHeader>
             <CardBody>
-              <Form onSubmit={handleSubmit}>
+              <Form onSubmit={handleSubmit} >
                 <Row>
                   <Col md="6">
                     <FormGroup>
@@ -89,8 +91,7 @@ function UserProfile() {
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        placeholder="Nom"
-                        required
+          
                       />
                     </FormGroup>
                   </Col>
@@ -99,11 +100,10 @@ function UserProfile() {
                       <label>Prénom</label>
                       <Input
                         type="text"
-                        name="username"
-                        value={formData.username}
+                        name="lastname"
+                        value={formData.lastname}
                         onChange={handleChange}
-                        placeholder="Prénom"
-                        required
+                      
                       />
                     </FormGroup>
                   </Col>
@@ -117,14 +117,13 @@ function UserProfile() {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        placeholder="Email"
-                        required
+                 
                       />
                     </FormGroup>
                   </Col>
                 </Row>
                 <Row>
-                  <Col md="6">
+                  <Col md="12">
                     <FormGroup>
                       <label>Mot De Passe</label>
                       <Input
@@ -132,21 +131,7 @@ function UserProfile() {
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
-                        placeholder="Mot De Passe"
-                        required
-                      />
-                    </FormGroup>
-                  </Col>
-                  <Col md="6">
-                    <FormGroup>
-                      <label>Confirmer Le Mot De Passe</label>
-                      <Input
-                        type="password"
-                        name="confirm_password"
-                        value={formData.confirm_password}
-                        onChange={handleChange}
-                        placeholder="Confirmer Le Mot De Passe"
-                        required
+                  
                       />
                     </FormGroup>
                   </Col>
@@ -160,8 +145,33 @@ function UserProfile() {
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        placeholder="Numéro De Téléphone"
-                        required
+                
+                      />
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md="6">
+                    <FormGroup>
+                      <label>Adresse physique</label>
+                      <Input
+                        type="text"
+                        name="adresse"
+                        value={formData.adresse}
+                        onChange={handleChange}
+          
+                      />
+                    </FormGroup>
+                  </Col>
+                  <Col md="6">
+                    <FormGroup>
+                      <label>Nationalité</label>
+                      <Input
+                        type="text"
+                        name="nationnalite"
+                        value={formData.nationnalite}
+                        onChange={handleChange}
+                      
                       />
                     </FormGroup>
                   </Col>
@@ -188,3 +198,4 @@ function UserProfile() {
 }
 
 export default UserProfile;
+

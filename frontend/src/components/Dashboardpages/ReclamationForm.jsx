@@ -17,7 +17,8 @@ const ReclamationForm = () => {
     }
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/reclamation', { objet, message });
+      const user_id = localStorage.getItem('user_id'); 
+      const response = await axios.post(`http://127.0.0.1:8000/api/reclamation?user_id=${user_id}`, { objet, message });
       console.log(response.data); // Vérifiez la réponse de l'API dans la console
       if (!response.data.success) {
         throw new Error(response.data.message);

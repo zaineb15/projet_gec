@@ -1,13 +1,15 @@
-import  { React,useState } from "react";
+import React, { useState } from "react";
 import "../LoginForm/LoginForm.css";
-import { Link } from "react-router-dom";
 import ttLogo from '../../assets/images/tt.png';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const ConfirmPassword = () => {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const navigate = useNavigate();
 
-    const validateForm = (event) => {
+    const validateForm = async (event) => {
         event.preventDefault();
         
         // Validation de la saisie du nouveau mot de passe
@@ -21,8 +23,19 @@ const ConfirmPassword = () => {
             return;
         }
 
-        // Si la validation réussit, vous pouvez soumettre le formulaire
-        alert("Formulaire soumis avec succès !");
+        try {
+            const user_id = localStorage.getItem('user_id'); // Récupérer l'`user_id` stocké localement
+            const response = await axios.post(`http://localhost:8000/api/newpassword/${user_id}`, {
+                password: newPassword,
+            });
+
+            // Redirection vers une page de confirmation ou une autre page appropriée
+            navigate("/");
+        } catch (error) {
+            // Gestion des erreurs
+            alert("Une erreur s'est produite lors de la mise à jour du mot de passe.");
+            console.error(error);
+        }
     };
 
     const handleNewPasswordChange = (event) => {
@@ -35,7 +48,7 @@ const ConfirmPassword = () => {
 
     return (
         <div className="login-container">
-            <form action="" method="POST" className="form-login" onSubmit={validateForm}>
+            <form className="form-login" onSubmit={validateForm}>
                 <img src={ttLogo} alt="Logo" className="login__logo"/>   
                 <p className="large"><b>Tunisie Télécom</b></p><br/>
                 <center><p><b>Entrer votre nouveau mot de passe</b></p></center>

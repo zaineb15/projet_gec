@@ -1,15 +1,30 @@
 import React, { useState } from "react";
 import "../LoginForm/LoginForm.css";
-import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import ttLogo from '../../assets/images/tt.png';
+import axios from 'axios';
 
 const ConfirmationCode = () => {
     const [confirmationCode, setConfirmationCode] = useState("");
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        // Vous pouvez ajouter ici la logique pour soumettre le code de confirmation
-        alert("Code de confirmation soumis : " + confirmationCode);
+
+        try {
+            // Faire une requête au serveur pour vérifier le code de confirmation
+            const user_id = localStorage.getItem('user_id'); // Récupérer l'`user_id` stocké localement
+            const response = await axios.post(`http://localhost:8000/api/confirm-code/${user_id}`, {
+                confirmationCode: confirmationCode,
+            });
+            
+            // Si le code est correct, rediriger vers /confirmpassword
+            navigate("/confirmpassword");
+        } catch (error) {
+            // Si le code est incorrect, afficher un message d'erreur
+            setError("Le code de confirmation est incorrect");
+        }
     };
 
     const handleChange = (event) => {
@@ -18,7 +33,7 @@ const ConfirmationCode = () => {
 
     return (
         <div className="login-container">
-            <form action="" method="POST" className="form-login" onSubmit={handleSubmit}>
+            <form className="form-login" onSubmit={handleSubmit}>
                 <img src={ttLogo} alt="Logo" className="login__logo"/>   
                 <p className="large"><b>Tunisie Télécom</b></p><br/>
                 <center><p><b>Entrer le code confidentiel de six chiffres</b></p></center>
@@ -34,7 +49,8 @@ const ConfirmationCode = () => {
                     type="number" 
                     required 
                 />
-                <button type="submit" className="login__submit">Confirmer</button>            
+                <button type="submit" className="login__submit">Confirmer</button>   
+                {error && <p className="error-message">{error}</p>}         
             </form>
         </div>
     );

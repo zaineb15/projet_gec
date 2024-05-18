@@ -1,0 +1,75 @@
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { Card, CardHeader } from 'reactstrap';
+import axios from 'axios';
+import Loading from 'assets/images/25.png'; // Assurez-vous que le chemin vers votre image de chargement est correct
+
+const ConsulterCommdis = () => {
+    const { id } = useParams();
+    const [facture, setFacture] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchFacture = async () => {
+            try {
+                const response = await axios.get(`http://127.0.0.1:8000/api/current-date-facturescd/${id}`);
+                setFacture(response.data);
+                setLoading(false); // Marquer le chargement comme terminé une fois que les données sont récupérées
+            } catch (error) {
+                console.error('Erreur lors de la récupération de la facture:', error);
+            }
+        };
+        fetchFacture();
+    }, [id]);
+
+    if (loading) { // Si loading est vrai, affichez le chargement
+        return (
+            <div className="content">
+                <div className="text-center">
+                    <img src={Loading} alt="Logo" style={{ width: '50px', height: '50px' }} />
+                    <p>Chargement des détails de la facture en cours</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Une fois que le chargement est terminé, affichez les détails de la facture
+    return (
+        <div className="content">
+            <Card>
+                <CardHeader>
+                    <h4 className="title">Détails de la commission distribution</h4>
+                </CardHeader>
+                <div className="content-wrapper">
+                    <section className="content">
+                        <div className="container-fluid">
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <div className="card card-primary">
+                                        <div className="card-header"></div>
+                                        <div className="card-body">
+                                            <p><strong>Numéro de facture :</strong> {facture.num_facture}</p>
+                                            <p><strong>Date de facture :</strong> {facture.date_facture}</p>
+                                            <p><strong>Montant :</strong> {facture.montant}</p>
+                                            <p><strong>Devise :</strong> {facture.devise}</p>
+                                            <p><strong>Comission :</strong> {facture.commission}</p>
+                                            <p><strong>Fournisseur :</strong> {facture.fournisseur}</p>
+                                            <p><strong>ID fiscale :</strong> {facture.id_fiscale}</p>
+                                            <p><strong>Date de récéption :</strong> {facture.date_rec}</p>
+                                            <p><strong>Delai de paiement :</strong> {facture.delai_paiement}</p>
+                                            <p><strong>Objet :</strong> {facture.objet}</p>
+                                            <p><strong>Piéce jointe :</strong> {facture.pieces_jointes}</p>
+                                            <p><strong>Fichier :</strong> {facture.upload_document}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </Card>
+        </div>
+    );
+};
+
+export default ConsulterCommdis;
